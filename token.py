@@ -21,11 +21,15 @@ re_strings = (
 	emoticon_string,
 	# Remaining words:
 	r"""
-	(?:[a-z][a-z'\-_]+[a-z])	# Words with apastrophes or dashes.
+	(?:[a-z][a-z'\-_]+[a-z])			# Words with apastrophes or dashes.
 	|
-	(?:[\w_]+)					# Words without apastrophes or dashes.
+	(?:[\w_]+)							# Words without apastrophes or dashes.
 	|
-	(?:\S)						# Everything else that isn't whitespace.
+	(?:[+\-\$]?\d+[,/.:-]\d+[+\-%]?)	# Numbers.
+	|
+	(?:\.(?:\s*\.){1,})					# Ellipsis dots.
+	|
+	(?:\S)								# Everything else that isn't whitespace.
 	"""
 	)
 
@@ -34,11 +38,17 @@ emoticon_re = re.compile(emoticon_string, re.VERBOSE | re.I | re.UNICODE)
 
 class Tokenizer:
     def tokenize(self, text):
+    	# Try to ensure unicode:
+        try:
+            text = unicode(text)
+        except UnicodeDecodeError:
+            text = str(text).encode('string_escape')
+            text = unicode(text)
         words = re.findall(word_re, text)
         words = map((lambda x : x if emoticon_re.search(x) else x.lower()), words)
         return words
 
 if __name__ == '__main__':
     tok = Tokenizer()
-    words = tok.tokenize("Hello you! I tell y'all.... Is this sentence tokenized, or what? :D")
+    words = tok.tokenize("Listen y'all.... Is this text tokenized, or what? :D Btw, I owe my mom $10!")
     print "\n".join(words)
