@@ -5,4 +5,5 @@ cabal-dev
 *.chi
 *.chs.h
 .virthualenv
+.pyc
 /*/
