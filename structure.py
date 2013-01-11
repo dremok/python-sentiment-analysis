@@ -1,9 +1,10 @@
 #!/usr/bin/env python
+# Filename: structure.py
 # -*- coding: utf-8 -*-
 
 from token import *
 
-test = "I am thinking about buying the new iPhone. Looks really cooooool. Samsung Galaxy is not nearly as cool IMHO!"
+test = "I am thinking about buying the new iPhone. Looks really cooooool :D Samsung Galaxy is not nearly as cool IMHO!"
 
 neg_str = r"""
 	(?:
@@ -41,3 +42,5 @@ if __name__ == '__main__':
 	words = tok.tokenize(test)
 	words = struc.negate(words)
 	print "\n".join(words)
+
+# End of structure.py
