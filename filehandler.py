@@ -32,7 +32,7 @@ class FileHandler:
 		with open(self.output_file, 'a') as f:
 			for feature in features:
 				f.write("@ATTRIBUTE " + feature + " NUMERIC\n")
-			f.write("@ATTRIBUTE class {pos,neg}\n")
+			f.write("@ATTRIBUTE CLASS_LABEL {pos,neg}\n")
 		f.close()
 
 	def write_data_header(self):

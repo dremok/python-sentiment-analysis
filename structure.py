@@ -19,8 +19,8 @@ neg_str = r"""
 
 neg_re = re.compile(neg_str, re.VERBOSE | re.I | re.UNICODE)
 clausePunct_re = re.compile(r"^[.:;!?]$", re.VERBOSE | re.I | re.UNICODE)
-punct_re = re.compile(r"^[.,:;!?]$", re.VERBOSE | re.I | re.UNICODE)
-apostrophes_re = re.compile(r"[\s'\"%]+", re.VERBOSE | re.I | re.UNICODE)
+punct_re = re.compile(r"^([.,:;!?]|\s|_NEG)+$", re.VERBOSE | re.I | re.UNICODE)
+apostrophes_re = re.compile(r"['\"%]+", re.VERBOSE | re.I | re.UNICODE)
 
 class Structurizer:
 	def negate(self, words):
@@ -69,8 +69,9 @@ class Structurizer:
 if __name__ == '__main__':
 	tok = Tokenizer()
 	struc = Structurizer()
-	words = struc.text2bag_of_words("it's a shining day isn't it?")
-	print "\n".join(words)
+	print punct_re.match("   . ")
+	# words = struc.text2bag_of_words("it's a shining day isn't it?")
+	# print "\n".join(words)
 	# words = struc.negate(words)
 	# words = struc.remove_punctuation(words)
 	
