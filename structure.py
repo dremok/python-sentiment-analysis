@@ -2,11 +2,9 @@
 # Filename: structure.py
 # -*- coding: utf-8 -*-
 
+from __future__ import division
 import re
-
 from token import *
-
-test = "I am thinking about buying the new iPhone. Looks really cooooool :D Samsung Galaxy is not nearly as cool IMHO!"
 
 neg_str = r"""
 	(?:
@@ -21,7 +19,8 @@ neg_str = r"""
 
 neg_re = re.compile(neg_str, re.VERBOSE | re.I | re.UNICODE)
 clausePunct_re = re.compile(r"^[.:;!?]$", re.VERBOSE | re.I | re.UNICODE)
-notPunct_re = re.compile(r"^[.:;!?]$", re.VERBOSE | re.I | re.UNICODE)
+punct_re = re.compile(r"^[.,:;!?]$", re.VERBOSE | re.I | re.UNICODE)
+apostrophes_re = re.compile(r"[\s'\"%]+", re.VERBOSE | re.I | re.UNICODE)
 
 class Structurizer:
 	def negate(self, words):
@@ -39,18 +38,43 @@ class Structurizer:
 		return words
 
 	def remove_punctuation(self, words):
-		return filter(lambda x:clausePunct_re.match(x) is None, words)
+		return filter(lambda x:punct_re.match(x) is None, words)
+
+	def remove_apostrophes_etc(self, words):
+		return map(lambda x:apostrophes_re.sub('', x), words)
+
+	def text2bag_of_words(self, text):
+		tok = Tokenizer()
+		tokens = tok.tokenize(text)
+		tokens = self.negate(tokens)
+		tokens = self.remove_punctuation(tokens)
+		tokens = self.remove_apostrophes_etc(tokens)
+		return tokens
+
+	def text2freqs(self, text):
+		freqs = {}
+		tokens = self.text2bag_of_words(text)
+		for t in tokens:
+			if t in freqs:
+				freqs[t] = freqs[t] + 1
+			else:
+				freqs[t] = 1
+		total_nbr_tokens = sum(freqs.values())
+		for token in freqs:
+			freqs[token] = freqs[token] / total_nbr_tokens
+		return freqs
 				
 
+# Main function for testing purposes.
 if __name__ == '__main__':
 	tok = Tokenizer()
 	struc = Structurizer()
-	
-	words = tok.tokenize(test)
-	words = struc.negate(words)
-	words = struc.remove_punctuation(words)
-	
+	words = struc.text2bag_of_words("it's a shining day isn't it?")
 	print "\n".join(words)
+	# words = struc.negate(words)
+	# words = struc.remove_punctuation(words)
+	
+	# print "\n".join(words)
 	# print words
 
 # End of structure.py

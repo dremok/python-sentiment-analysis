@@ -60,6 +60,8 @@ class Tokenizer:
 
         return words
 
+
+# Main function for testing purposes.
 if __name__ == '__main__':
     tok = Tokenizer()
     words = tok.tokenize("Listen y'all.... Is this text tokenized, or what? :D BTW, precision can never be 100%. And I soooooooooo owe my CEO $10!")

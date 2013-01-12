@@ -1,14 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from structure import *
-from token import *
+from filehandler import *
 
 if __name__ == '__main__':
-	tok = Tokenizer()
-	struc = Structurizer()
-	
-	words = tok.tokenize(test)
-	words = struc.negate(words)
+	handler = FileHandler(Structurizer())
 
-	print "\n".join(words)
+	features = list(handler.all_tokens({'pos', 'neg'}))
+	
+	handler.write_relation_name("sentiment")
+	handler.write_feature_names(features)
+	handler.write_data_header()
+	handler.write_all_training_data_for_label('pos', features)
+	handler.write_all_training_data_for_label('neg', features)
