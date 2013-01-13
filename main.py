@@ -12,10 +12,7 @@ if __name__ == '__main__':
 	valid_words = file_handler.load_word_lists()
 	feature_handler.keep_only_these_words(valid_words)
 
-	features = feature_handler.features
+	file_handler.write_all_training_data(feature_handler, 'arff')
 
-	file_handler.write_relation_name("sentiment")
-	file_handler.write_feature_names(features)
-	file_handler.write_data_header()
-	file_handler.write_all_training_data_for_label('pos', features)
-	file_handler.write_all_training_data_for_label('neg', features)
+	file_handler.set_output_file('train')
+	file_handler.write_all_training_data(feature_handler, 'libsvm')

@@ -64,6 +64,7 @@ class Structurizer:
 			freqs[token] = freqs[token] / total_nbr_tokens
 		return freqs
 
+
 # Main function for testing purposes.
 if __name__ == '__main__':
 	tok = Tokenizer()

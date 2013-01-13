@@ -4,14 +4,18 @@
 
 from __future__ import division
 import glob
-
+import sys
 from structure import *
+from featurehandler import *
 
 class FileHandler:
 	output_file = "train.arff"
 
 	def __init__(self, struc):
 		self.struc = struc
+
+	def set_output_file(self, filename):
+		self.output_file = filename
 
 	def load_all_tokens(self, labels):
 		all_tokens = {}
@@ -33,55 +37,85 @@ class FileHandler:
 		for filename in glob.glob("words/*.csv"):
 			with open(filename) as f:
 				words.extend(f.read().split())
+		for filename in glob.glob("words/*.txt"):
+			with open(filename) as f:
+				words.extend(f.read().split())
 		return set(map(lambda x:x.lower(), words))
 
-	def write_relation_name(self, relation):
-		with open(self.output_file, 'a') as f:
-			f.write("@RELATION " + relation + "\n\n")
-		f.close()
-
-	def write_feature_names(self, features):
-		with open(self.output_file, 'a') as f:
-			for feature in features:
-				f.write("@ATTRIBUTE " + feature + " NUMERIC\n")
-			f.write("@ATTRIBUTE CLASS_LABEL {pos,neg}\n")
-		f.close()
-
-	def write_data_header(self):
-		with open(self.output_file, 'a') as f:
-			f.write("\n@DATA\n")
-		f.close()
-
-	def write_training_data(self, label, features, freqs):
-		with open(self.output_file, 'a') as f:
-			for feature in features:
-				if feature in freqs:
-					f.write(str(freqs[feature]) + ",")
-				else:
-					f.write("0,")
-			f.write(label + "\n")
-		f.close()
-
-	def write_all_training_data_for_label(self, label, features):
-		for filename in glob.glob("reviews/" + label + "/*.txt"):
-			with open(filename) as f:
-				text = f.read()
-				freqs = self.struc.text2freqs(text)
-				self.write_training_data(label, features, freqs)
+	def write_relation_name(self, relation, filetype):
+		if filetype == 'arff':
+			with open(self.output_file, 'a') as f:
+				f.write("@RELATION " + relation + "\n\n")
 			f.close()
+		else:
+			print 'Unrecognized filetype.'
+			sys.exit(1)
+
+	# features must be a list
+	def write_feature_names(self, features, filetype):
+		if filetype == 'arff':
+			with open(self.output_file, 'a') as f:
+				for i in range(0, len(features)):
+					f.write("@ATTRIBUTE " + features[i] + " NUMERIC\n")
+				f.write("@ATTRIBUTE CLASS_LABEL {pos,neg}\n")
+			f.close()
+		else:
+			print 'Unrecognized filetype.'
+			sys.exit(1)			
+
+	def write_data_header(self, filetype):
+		if filetype == 'arff':
+			with open(self.output_file, 'a') as f:
+				f.write("\n@DATA\n")
+			f.close()
+		else:
+			print 'Unrecognized filetype.'
+			sys.exit(1)
+		
+	def write_training_data(self, label, features, freqs, filetype):
+			with open(self.output_file, 'a') as f:
+				if filetype == 'libsvm':
+					if label == 'pos':
+						f.write('+1 ')
+					elif label == 'neg':
+						f.write('-1 ')
+				for i in range(0, len(features)):
+					feat = features[i]
+					if feat in freqs:
+						if filetype == 'arff':
+							f.write(str(freqs[feat]) + ",")
+						elif filetype == 'libsvm':
+							f.write(str(i) + ":" + str(freqs[feat]) + " ")
+					else:
+						if filetype == 'arff':
+							f.write("0,")
+				if filetype == 'arff':
+					f.write(label + "\n")
+				elif filetype == 'libsvm':
+					f.write("\n")
+			f.close()
+
+	def write_all_training_data(self, feature_handler, filetype):
+		if filetype == 'arff':
+			self.write_relation_name("sentiment", 'arff')
+			self.write_feature_names(list(feature_handler.features), 'arff')
+			self.write_data_header('arff')
+		for label in ['pos', 'neg']:
+			for filename in glob.glob("reviews/"+ label + "/*.txt"):
+				with open(filename) as f:
+					text = f.read()
+					freqs = self.struc.text2freqs(text)
+					self.write_training_data(label, list(feature_handler.features), freqs, filetype)
+				f.close()
 
 
 # Main function for testing purposes.
 if __name__ == '__main__':
 	handler = FileHandler(Structurizer())
-
 	features = handler.load_all_tokens({'pos', 'neg'})
-	print features
+	handler.write_all_training_data(list(features.keys()), 'arff')
 	
-	# handler.write_relation_name("sentiment")
-	# handler.write_feature_names(features)
-	# handler.write_data_header()
-	# handler.write_all_training_data_for_label('pos', features)
-	# handler.write_all_training_data_for_label('neg', features)
+	# handler.write_all_training_data('pos', features, 'arff')
+	# handler.write_all_training_data('neg', features, 'arff')
 
 # End of filehandler.py
