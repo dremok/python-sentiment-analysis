@@ -13,15 +13,27 @@ class FileHandler:
 	def __init__(self, struc):
 		self.struc = struc
 
-	def all_tokens(self, labels):
-		tokens = []
+	def load_all_tokens(self, labels):
+		all_tokens = {}
 		for label in labels:
 			for filename in glob.glob("reviews/" + label + "/*.txt"):
 				with open(filename) as f:
 					text = f.read()
-					tokens.extend(self.struc.text2bag_of_words(text))
+					tokens = self.struc.text2bag_of_words(text)
+					for t in tokens:
+						if t in all_tokens:
+							all_tokens[t] = all_tokens[t] + 1
+						else:
+							all_tokens[t] = 1
 				f.close()
-		return set(tokens)
+		return all_tokens
+
+	def load_word_lists(self):
+		words = []
+		for filename in glob.glob("words/*.csv"):
+			with open(filename) as f:
+				words.extend(f.read().split())
+		return set(map(lambda x:x.lower(), words))
 
 	def write_relation_name(self, relation):
 		with open(self.output_file, 'a') as f:
@@ -63,12 +75,13 @@ class FileHandler:
 if __name__ == '__main__':
 	handler = FileHandler(Structurizer())
 
-	features = list(handler.all_tokens({'pos', 'neg'}))
+	features = handler.load_all_tokens({'pos', 'neg'})
+	print features
 	
-	handler.write_relation_name("sentiment")
-	handler.write_feature_names(features)
-	handler.write_data_header()
-	handler.write_all_training_data_for_label('pos', features)
-	handler.write_all_training_data_for_label('neg', features)
+	# handler.write_relation_name("sentiment")
+	# handler.write_feature_names(features)
+	# handler.write_data_header()
+	# handler.write_all_training_data_for_label('pos', features)
+	# handler.write_all_training_data_for_label('neg', features)
 
 # End of filehandler.py
