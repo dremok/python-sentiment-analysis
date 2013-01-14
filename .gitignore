@@ -8,4 +8,5 @@ cabal-dev
 *.pyc
 *.txt
 *.arff
+*.libsvm
 /*/

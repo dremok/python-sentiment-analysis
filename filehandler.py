@@ -90,17 +90,20 @@ class FileHandler:
 						if filetype == 'arff':
 							f.write("0,")
 				if filetype == 'arff':
-					f.write(label + "\n")
+					if 'pos' in label:
+						f.write('pos' + "\n")
+					elif 'neg' in label:
+						f.write('neg' + "\n")
 				elif filetype == 'libsvm':
 					f.write("\n")
 			f.close()
 
-	def write_all_training_data(self, feature_handler, filetype):
+	def write_all_instances(self, labels, feature_handler, filetype):
 		if filetype == 'arff':
 			self.write_relation_name("sentiment", 'arff')
 			self.write_feature_names(list(feature_handler.features), 'arff')
 			self.write_data_header('arff')
-		for label in ['pos', 'neg']:
+		for label in labels:
 			for filename in glob.glob("reviews/"+ label + "/*.txt"):
 				with open(filename) as f:
 					text = f.read()
