@@ -17,3 +17,5 @@ Next step:
 2. Manually annotate a couple of hundred posts.
 3. Estimate sentiment on huge amounts of posts for a company (or product) over a period of time,
 say a month. Compare to some hard figures, stock market price, sales figures etc.
+
+To be continued...
